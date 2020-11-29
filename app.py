@@ -84,7 +84,6 @@ def profile(username):
         {"username": session["user"]})["username"]
     if session["user"]:
         return render_template("profile.html", username=username)
-    
     return redirect(url_for("login"))
 
 
@@ -116,7 +115,7 @@ def add_task():
     return render_template("add_task.html", categories=categories)
 
 
-@app.route("/edit_task<task_id>", methods=["GET", "POST"])
+@app.route("/edit_task/<task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
     if request.method == "POST":
         is_urgent = "on" if request.form.get("is_urgent") else "off"
@@ -134,6 +133,13 @@ def edit_task(task_id):
     task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     categories = mongo.db.categories.find().sort("category_name", 1)
     return render_template("edit_task.html", task=task, categories=categories)
+
+
+@app.route("/delete_task/<task_id>")
+def delete_task(task_id):
+    mongo.db.tasks.remove({"_id": ObjectId(task_id)})
+    flash("Task Sucessfully Deleted")
+    return redirect(url_for("get_tasks"))
 
 
 if __name__ == "__main__":
